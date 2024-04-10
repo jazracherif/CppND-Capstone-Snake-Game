@@ -53,8 +53,8 @@ This work is licensed under a
 ## General Description
 
 - Configuration File: 
+- Separate Thread for logging Actions ?
 - Add different types of food to the game: Food will have different number of points based on their color.
-- Separate Thread for logging User ?
 - Read log and recreate the game ?
 - separate Thread to draw optimal path in gray using A*? 
 

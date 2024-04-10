@@ -1,10 +1,12 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
+#include <thread>
+
 #include "controller.h"
 #include "game.h"
 #include "renderer.h"
-#include <filesystem>
 
 #define RAPIDJSON_NOMEMBERITERATORCLASS 1
 #include "rapidjson/document.h"

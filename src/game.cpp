@@ -2,12 +2,21 @@
 #include <iostream>
 #include "SDL.h"
 
+#include "logger.h"
+
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake(grid_width, grid_height),
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)) {
   PlaceFood();
+}
+
+Game::~Game(){
+  Game::running = false;
+  std::for_each(threads.begin(), threads.end(), [](std::thread &t) {
+        t.join();
+    });
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -17,13 +26,16 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   Uint32 frame_end;
   Uint32 frame_duration;
   int frame_count = 0;
-  bool running = true;
+  Game::running = true;
 
-  while (running) {
+  auto logger =  std::make_shared<Logger>(2, "logger.txt");
+  threads.emplace_back(std::thread(&Logger::main, logger, std::ref(Game::running)));
+
+  while (Game::running) {
     frame_start = SDL_GetTicks();
 
     // Input, Update, Render - the main game loop.
-    controller.HandleInput(running, snake);
+    controller.HandleInput(Game::running, snake);
     Update();
     renderer.Render(snake, food);
 
