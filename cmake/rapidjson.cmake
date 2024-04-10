@@ -1,3 +1,4 @@
+# Following tutorial https://www.jibbow.com/posts/rapidjson-cmake/
 include(ExternalProject)
 
 # Download RapidJson
