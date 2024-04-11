@@ -28,8 +28,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   int frame_count = 0;
   Game::running = true;
 
-  auto logger =  std::make_shared<Logger>(2, "logger.txt");
-  threads.emplace_back(std::thread(&Logger::main, logger, std::ref(Game::running)));
+  threads.emplace_back(std::thread(&Logger::main, std::ref(Logger::getLogger()), std::ref(Game::running)));
 
   while (Game::running) {
     frame_start = SDL_GetTicks();
@@ -89,6 +88,8 @@ void Game::Update() {
   if (food.x == new_x && food.y == new_y) {
     score++;
     PlaceFood();
+    Logger::getLogger().logEatEvent();
+
     // Grow snake and increase speed.
     snake.GrowBody();
     snake.speed += 0.02;

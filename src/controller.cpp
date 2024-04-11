@@ -2,10 +2,14 @@
 #include <iostream>
 #include "SDL.h"
 #include "snake.h"
+#include "logger.h"
 
 void Controller::ChangeDirection(Snake &snake, Snake::Direction input,
                                  Snake::Direction opposite) const {
-  if (snake.direction != opposite || snake.size == 1) snake.direction = input;
+  if (snake.direction != opposite || snake.size == 1) {
+    snake.direction = input;
+    Logger::getLogger().logDirectionChange(snake.direction);
+  }
   return;
 }
 
@@ -14,6 +18,7 @@ void Controller::HandleInput(bool &running, Snake &snake) const {
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
       running = false;
+      Logger::getLogger().logDead();
     } else if (e.type == SDL_KEYDOWN) {
       switch (e.key.keysym.sym) {
         case SDLK_UP:
