@@ -48,7 +48,9 @@ This work is licensed under a
 
 # New Features
 - add RapidJson dependency: cmake/rapidjson.cmake, copy header files into `include/rapidjson` directory
-- Add Config file `config/config.json` to update certain parameters of the game. See `Main.cpp`
+- Create gameConfig class to handle loading the game configuration from a json file, either default (`config/config.json` ) or user provided
+- `Main.cpp` loads the config
+- Add logging thread
 
 ## General Description
 

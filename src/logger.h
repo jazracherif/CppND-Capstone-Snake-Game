@@ -11,7 +11,8 @@ class Logger {
 public:
     Logger(int updateFrequencySec, std::string logPath): 
         updateFrequencySec(updateFrequencySec), logPath(logPath) {};
-
+    ~Logger();
+    
     void logDirectionChange(Snake::Direction direction);
     void logEatEvent();
     void logDead();
@@ -26,7 +27,7 @@ private:
     long updateFrequencySec; // how often to write to file
 
     std::mutex mtx; // protect events structure
-
+    void printStartMsg();
 };
 
 #endif
