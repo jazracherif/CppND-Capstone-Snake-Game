@@ -123,6 +123,17 @@ The game logs will be stored in the `./game_logger.txt` file. This file can be o
 
 
 # Submission Rubric
+
+
+| Rubric  | Project Meets ? |
+| :-------- | :-------------: |
+| I. Compiling and Testing (All Rubric Points REQUIRED) | |
+| The submission must compile and run without errors on the Udacity project workspace. | Yes | 
+
+
+
+
+
 ## I. Compiling and Testing (All Rubric Points REQUIRED)
 
 ### 1. The submission must compile and run without errors on the Udacity project workspace.
@@ -137,7 +148,7 @@ A variety of control structures are added to the project.
 
 The project code is clearly organized into functions.
 
-<a style="color:#FF5733;"> YES, see the various classes and structure in `.cpp|.h` files for `gameConfig` and `gameLogger` </a>
+YES, see the various classes and structure in `.cpp|.h` files for `gameConfig` and `gameLogger`
 
 ### 2. The project reads data from a file and process the data, or the program writes data to a file.
 
