@@ -137,7 +137,7 @@ A variety of control structures are added to the project.
 
 The project code is clearly organized into functions.
 
-YES
+<a style="color:#FF5733;"> YES, see the various classes and structure in `.cpp|.h` files for `gameConfig` and `gameLogger` </a>
 
 ### 2. The project reads data from a file and process the data, or the program writes data to a file.
 
