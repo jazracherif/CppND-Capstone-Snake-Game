@@ -1,4 +1,7 @@
 {
-    "fps": 120,
-    "loggerUpdateFrequencySec": 2
+    "fps": 80,
+    "screenWidth": 320,
+    "screenHeight": 320,
+    "gridWidth": 24,
+    "gridHeight":24
 }

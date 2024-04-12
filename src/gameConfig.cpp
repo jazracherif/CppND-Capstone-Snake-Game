@@ -31,7 +31,6 @@ GameConfig::GameConfig(std::string url) {
 
     if (!std::filesystem::exists(url)){
         std::cout << "::GameConfig - Config File " << url << " doesn't exist, using default configuration" << std::endl;
-        std::cout << "::GameConfig - Use Default Config" << std::endl;
         GameConfig::printConfig();
         return;
     }
@@ -56,12 +55,17 @@ GameConfig::GameConfig(std::string url) {
 
     // Extract Config from json file
     if (jsonConfig.HasMember("fps")){
-       std::cout << "::GameConfig - Reading fps " << std::endl;
-
       GameConfig::_kFramesPerSecond = jsonConfig["fps"].GetInt();
       GameConfig::_kMsPerFrame = 1000/GameConfig::_kFramesPerSecond;
     }
-    // TODO: add rest of parameters
+    if (jsonConfig.HasMember("screenWidth"))
+      GameConfig::_kScreenWidth = jsonConfig["screenWidth"].GetInt();
+    if (jsonConfig.HasMember("screenHeight"))
+      GameConfig::_kScreenHeight = jsonConfig["screenHeight"].GetInt();
+    if (jsonConfig.HasMember("gridWidth"))
+        GameConfig::_kGridWidth = jsonConfig["gridWidth"].GetInt();
+    if (jsonConfig.HasMember("gridHeight"))
+        GameConfig::_kGridHeight = jsonConfig["gridHeight"].GetInt();
 
     std::cout << "::GameConfig - Success reading config file!" << std::endl;
     GameConfig::printConfig();

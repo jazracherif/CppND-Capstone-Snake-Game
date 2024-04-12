@@ -50,7 +50,7 @@ This work is licensed under a
 - add RapidJson dependency: cmake/rapidjson.cmake, copy header files into `include/rapidjson` directory
 - Create gameConfig class to handle loading the game configuration from a json file, either default (`config/config.json` ) or user provided
 - `Main.cpp` loads the config
-- Add logging thread
+- Add logging thread: Implement event recording in logger's internal list and flush method
 
 ## General Description
 
@@ -79,17 +79,26 @@ A variety of control structures are added to the project.
 
 The project code is clearly organized into functions.
 
+YES
+
 ### 2. The project reads data from a file and process the data, or the program writes data to a file.
 
 The project reads data from an external file or writes data to a file as part of the necessary operation of the program.
+
+YES - see both reading json.config and logger#flush
 
 ### 3. The project accepts user input and processes the input.
 
 In addition to controlling the snake, the game can also receive new types of input from the player.
 
+NOT RIGHT NOW
+
 ### 4. The project uses data structures and immutable variables.
 
 The project uses arrays or vectors and uses constant variables.
+
+YES
+see constant in logger/GameConfig
 
 ## III. Object Oriented Programming - meet at least 3 criteria
 
@@ -101,9 +110,13 @@ All class data members are explicitly specified as public, protected, or private
 
 Member data that is subject to an invariant is hidden from the user and accessed via member methods.
 
+YES see Logger.h
+
 ### 2. Class constructors utilize member initialization lists.
 
 All class members that are set to argument values are initialized through member initialization lists.
+
+YES see Logger.h
 
 ### 3. Classes abstract implementation details from their interfaces.
 
@@ -111,17 +124,25 @@ All class member functions document their effects, either through function names
 
 Member functions do not change the program state in undocumented ways.
 
+YES
+
 ### 4. Overloaded functions allow the same function to operate on different parameters.
 
 One function is overloaded with different signatures for the same function name.
+
+NOT RIGHT NOW
 
 ### 5. Classes follow an appropriate inheritance hierarchy with virtual and override functions.
 
 Inheritance hierarchies are logical. One member function in an inherited class overrides a virtual base class member function.
 
+NOT RIGHT NOW
+
 ### 6. Templates generalize functions or classes in the project.
 
 One function or class is declared with a template that allows it to accept a generic parameter.
+
+NOT RIGHT NOW
 
 ## IV. Memory Management - meet at least 3 criteria
 
@@ -129,22 +150,35 @@ One function or class is declared with a template that allows it to accept a gen
 
 At least two variables are defined as references, or two functions use pass-by-reference in the project code.
 
+YES SEE 
+Logger.h
+```
+#main(bool &running); 
+Logstatic Logger& getLogger();
+```
+
 ### 2. The project uses destructors appropriately.
 
 At least one class that uses unmanaged dynamically allocated memory, along with any class that otherwise needs to modify state upon the termination of an object, uses a destructor.
+
+YES see ~Logger()
 
 ### 3. The project uses scope / Resource Acquisition Is Initialization (RAII) where appropriate.
 
 The project follows the Resource Acquisition Is Initialization pattern where appropriate, by allocating objects at compile-time, initializing objects when they are declared, and utilizing scope to ensure their automatic destruction.
 
+YES see class configFileFp in gameConfig.cpp
+
 ### 4. The project follows the Rule of 5.
 
 For all classes, if any one of the copy constructor, copy assignment operator, move constructor, move assignment operator, and destructor are defined, then all of these functions are defined.
 
+YES, see logger.h, 
 ### 5. The project uses move semantics to move data instead of copying it, where possible.
 
 The project relies on the move semantics, instead of copying the object.
 
+YES, see example in Logger.cpp#logDirectionChange()
 ### 6. The project uses smart pointers instead of raw pointers.
 
 The project uses at least one smart pointer: `unique_ptr`, `shared_ptr`, or `weak_ptr`.
@@ -155,14 +189,22 @@ The project uses at least one smart pointer: `unique_ptr`, `shared_ptr`, or `wea
 
 The project uses multiple threads or async tasks in the execution.
 
+YES, logger thread with mutex
+
 ### 2. A promise and future is used in the project.
 
 A promise and future is used to pass data from a worker thread to a parent thread in the project code.
+
+NOT RIGHT NOW
 
 ### 3. A mutex or lock is used in the project.
 
 A mutex or lock (e.g. std::lock_guard or `std::unique_lock) is used to protect data that is shared across multiple threads in the project code.
 
+YES see logger use of _mtx
+
 ### 4. A condition variable is used in the project.
 
 A `std::condition_variable` is used in the project code to synchronize thread execution.
+
+NOT RIGHT NOW

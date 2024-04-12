@@ -7,9 +7,7 @@
 std::mutex Logger::_mtx;
 
 Logger &Logger::getLogger(){
-
-    std::lock_guard<std::mutex> lck(Logger::_mtx);
-
+    // should i use std::call_once?
     static Logger _logger = Logger(3, "logger.txt");
     return _logger;
 }
@@ -71,7 +69,7 @@ void Logger::main(bool &running){
     }
 }
 
-std::string directionToStr(Snake::Direction direction){
+std::string directionToStr(const Snake::Direction direction){
     switch(direction) {
         case Snake::Direction::kUp: return "Up";
         case Snake::Direction::kDown: return "Down";
@@ -89,17 +87,20 @@ std::string timeToStr(std::chrono::time_point<std::chrono::system_clock> time){
     return t2;
 }
 
-void Logger::logDirectionChange(Snake::Direction direction){
+void Logger::logDirectionChange(const Snake::Direction direction){
     std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-    std::string log = "--" + timeToStr(now)+ "\t-- GO: " + directionToStr(direction);
+    std::string log = "--" + timeToStr(now)+ "\t-- GO: " + directionToStr(direction) + " --";
 
     std::lock_guard<std::mutex> lck(Logger::_mtx);
     events.push_back(std::move(log));
 }
 
-void Logger::logEatEvent(){
+void Logger::logEatEvent(const int score, const int size, const float speed){
     std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-    std::string log = "--" + timeToStr(now)+ "\t-- YUMMY!";
+    std::string log = "--" + timeToStr(now)+ "\t-- YUMMY! " + " score: " +\
+                        std::to_string(score)+ " size: " +\
+                        std::to_string(size) + " speed: " +\
+                        std::to_string(speed) + " --";
 
     std::lock_guard<std::mutex> lck(Logger::_mtx);
     events.push_back(std::move(log));
@@ -108,7 +109,7 @@ void Logger::logEatEvent(){
 
 void Logger::logDead(){
     std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-    std::string log = "--" + timeToStr(now)+ "\t-- DEAD";
+    std::string log = "--" + timeToStr(now)+ "\t-- DEAD --";
 
     std::lock_guard<std::mutex> lck(Logger::_mtx);
     events.push_back(std::move(log));

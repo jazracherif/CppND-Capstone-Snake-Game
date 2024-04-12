@@ -88,11 +88,12 @@ void Game::Update() {
   if (food.x == new_x && food.y == new_y) {
     score++;
     PlaceFood();
-    Logger::getLogger().logEatEvent();
-
     // Grow snake and increase speed.
     snake.GrowBody();
     snake.speed += 0.02;
+
+    Logger::getLogger().logEatEvent(score, snake.size, snake.speed);
+
   }
 }
 
