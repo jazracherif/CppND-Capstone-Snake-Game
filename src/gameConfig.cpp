@@ -2,6 +2,7 @@
 #include <fstream>
 #include "gameConfig.h"
 #include <cstdio>
+#include <sys/stat.h>
 
 #define RAPIDJSON_NOMEMBERITERATORCLASS 1
 #include "rapidjson/document.h"
@@ -11,7 +12,7 @@
 #define SRC_URL "/src"
 #define CONFIG_FILE_URL "/config/config.json"
 
-// RAII for config file
+// RAII for config file pointer
 class configFileFp {
 public:
    configFileFp(const char url[]) {   
@@ -20,24 +21,32 @@ public:
   ~configFileFp(){ fclose(_fp);}
   FILE* fp() {return _fp;}
 
+  static bool exists(const char* url ) {
+    struct stat buffer;   
+    return (stat (url, &buffer) == 0);
+  }
+
 private:
   FILE* _fp;
 };
 
 GameConfig::GameConfig(std::string url) {
   
-    if (url.empty())
-        url = GameConfig::defaultConfigUrl();
+    if (url.empty()){
+        std::cout << "::GameConfig - No Config File provided, using default configuration" << std::endl;
+        GameConfig::printConfig();
+        return;
+    }
 
-    if (!std::filesystem::exists(url)){
+    if (!configFileFp::exists(url.c_str())){
         std::cout << "::GameConfig - Config File " << url << " doesn't exist, using default configuration" << std::endl;
         GameConfig::printConfig();
         return;
     }
+
     std::cout << "::GameConfig - Reading Config File: " << url << std::endl;
 
     // rapidjson FileReadStream: https://rapidjson.org/md_doc_stream.html#FileReadStream
-
     configFileFp file(url.c_str());
     FILE* fp = file.fp();  
     char readBuffer[65536];
@@ -71,10 +80,6 @@ GameConfig::GameConfig(std::string url) {
     GameConfig::printConfig();
 }
 
-std::string GameConfig::defaultConfigUrl(){
-    // Get config file, assumes program is running from /build directory
-    return std::filesystem::current_path().parent_path().string() + SRC_URL + CONFIG_FILE_URL;
-}
 
 void GameConfig::printConfig(){
     std::cout << "== ::GameConfig == " << std::endl;
