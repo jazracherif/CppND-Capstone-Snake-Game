@@ -25,11 +25,7 @@ In this project, you can build your own C++ application or extend this Snake gam
 
 ## Basic Build Instructions
 
-1. Clone this repo.
-2. Make a build directory in the top level directory: `mkdir build && cd build`
-3. Compile: `cmake .. && make`
-4. Run it: `./SnakeGame`.
-
+see below
 
 ## CC Attribution-ShareAlike 4.0 International
 
@@ -62,7 +58,50 @@ This work is licensed under a
 
 ## Code Layout 
 
-## Running 
+## Installing and Running 
+
+1. Clone this repo.
+2. Make a build directory in the top level directory: `mkdir build && cd build`
+3. Compile: `cmake .. && make`
+4. Run it with default game configuration `./SnakeGame`.
+5  Run with Custom Config: `./SnakeGame ../src/config/example_config.json`.
+
+Output will show configuration used and steps Game event logs
+
+```
+::GameConfig - Reading Config File: ../src/config/example_config.json
+::GameConfig - Success reading config file!
+== ::GameConfig == 
+kFramesPerSecond: 80
+kMsPerFrame: 12
+kScreenWidth: 320
+kScreenHeight: 320
+kGridWidth: 24
+kGridHeight: 24
+== 
+::GameLogger - Thread Started: 
+::GameLogger - updateFrequencySec - 3
+::GameLogger -logPath - game_logger.txt
+::Logger - update Log - last update 3 sec ago
+::GameLogger - Event List: 
+--Fri Apr 12 12:07:06 2024	-- GO: Left --
+--Fri Apr 12 12:07:07 2024	-- GO: Up --
+--Fri Apr 12 12:07:07 2024	-- GO: Left --
+::Logger - update Log - last update 3 sec ago
+::GameLogger - Event List: 
+--Fri Apr 12 12:07:08 2024	-- GO: Down --
+--Fri Apr 12 12:07:08 2024	-- GO: Right --
+--Fri Apr 12 12:07:09 2024	-- GO: Up --
+--Fri Apr 12 12:07:09 2024	-- YUMMY!  score: 1 size: 1 speed: 0.120000 --
+--Fri Apr 12 12:07:10 2024	-- GO: Left --
+--Fri Apr 12 12:07:10 2024	-- YUMMY!  score: 2 size: 2 speed: 0.140000 --
+--Fri Apr 12 12:07:10 2024	-- GO: Up --
+::Logger - update Log - last update 3 sec ago
+```
+
+The game logs will also be stores in the `./game_logger.txt` file. This file can be observed while playing using
+`tail -f ./game_logger.txt`
+
 
 # Submission Rubric
 ## I. Compiling and Testing (All Rubric Points REQUIRED)
