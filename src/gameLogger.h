@@ -29,6 +29,7 @@ public:
     // main loop for the logger
     void main(bool &running); 
 
+    // Game events functions notification
     void logDirectionChange(const Snake::Direction direction);
     void logEatEvent(const int score, const int size, const float speed);
     void logDead();

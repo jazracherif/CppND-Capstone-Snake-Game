@@ -1,34 +1,10 @@
 # CPPND: Capstone Snake Game Example
 
-This is a starter repo for the Capstone project in the [Udacity C++ Nanodegree Program](https://www.udacity.com/course/c-plus-plus-nanodegree--nd213). The code for this repo was inspired by [this](https://codereview.stackexchange.com/questions/212296/snake-game-in-c-with-sdl) excellent StackOverflow post and set of responses.
+This is the repo for Cherif Jazra's Capstone project in the [Udacity C++ Nanodegree Program](https://www.udacity.com/course/c-plus-plus-nanodegree--nd213). The code for this repo was originally provided by Udacity and inspired by [this](https://codereview.stackexchange.com/questions/212296/snake-game-in-c-with-sdl) excellent StackOverflow post and set of responses.
 
 <img src="snake_game.gif"/>
 
-The Capstone Project gives you a chance to integrate what you've learned throughout this program. This project will become an important part of your portfolio to share with current and future colleagues and employers.
-
-In this project, you can build your own C++ application or extend this Snake game, following the principles you have learned throughout this Nanodegree Program. This project will demonstrate that you can independently create applications using a wide range of C++ features.
-
-## Dependencies for Running Locally
-* cmake >= 3.7
-  * All OSes: [click here for installation instructions](https://cmake.org/install/)
-* make >= 4.1 (Linux, Mac), 3.81 (Windows)
-  * Linux: make is installed by default on most Linux distros
-  * Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
-  * Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
-* SDL2 >= 2.0
-  * All installation instructions can be found [here](https://wiki.libsdl.org/Installation)
-  >Note that for Linux, an `apt` or `apt-get` installation is preferred to building from source. 
-* gcc/g++ >= 5.4
-  * Linux: gcc / g++ is installed by default on most Linux distros
-  * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
-  * Windows: recommend using [MinGW](http://www.mingw.org/)
-
-## Basic Build Instructions
-
-see below
-
 ## CC Attribution-ShareAlike 4.0 International
-
 
 Shield: [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
 
@@ -43,32 +19,75 @@ This work is licensed under a
 
 
 # New Features
-- add RapidJson dependency: cmake/rapidjson.cmake, copy header files into `include/rapidjson` directory
-- Create gameConfig class to handle loading the game configuration from a json file, either default (`config/config.json` ) or user provided
-- `Main.cpp` loads the config
-- Add logging thread: Implement event recording in logger's internal list and flush method
 
-## General Description
+This project adds the following features to the basic code provided by Udacity:
 
-- Configuration File: 
-- Separate Thread for logging Actions ?
-- Add different types of food to the game: Food will have different number of points based on their color.
-- Read log and recreate the game ?
-- separate Thread to draw optimal path in gray using A*? 
+1. The ability to provide custom game configuration options through a json file, where frame speed, screen size, and grid size can be specified.
+2. A new background Game logger capability which keeps tracks of all games events and periodically stores them in a log file.
 
-## Code Layout 
+
+## General Description and Code Layout
+
+### Custom Game Configuration
+
+To support Custom Game configuration through json files, the [RapidJson](https://rapidjson.org/) library is added to the project. RapidJson header files are included under `include/rapidjson` and a new `cmake` file is added for building an linking the project. See `cmake/rapidjson.cmake` for details.
+
+The `main` function in `main.cpp` takes a new user input, the url to the json configuration file. The `GameConfig` object defined in `gameConfig.h` implements loading the configuration from a json file. Its constructor will take care of reading the file and store the game parameters in internal private variables such as `_kFramesPerSecond`. Public Getter functions are added for each parameter. The `RAII` pattern is used to manage the file pointer used to open the configuration file. See class `gameConfig.cpp#configFileFp`. If no file is provided by the user, or if the url provided is incorrect, the program will default to the constant game parameters defined in `GameConfig.h`. An example config file can be found in `src/config/example_config.json`
+
+### The Game Logger
+
+The second and main feature added to this program is a Game Logging capability. The logger is implemented using the [Singleton pattern](https://en.wikipedia.org/wiki/Singleton_pattern), in the `GameLogger` class in `gameLogger.h`.  This pattern is used to make it easier to invoke the logger from anywhere within the codebase, without having to include a reference to the logger in all classes that need to access it.
+
+The logger must be invoked through the `GameLogger#getLogger()` static function, which returns a reference to the single static `GameLogger` variable. To insure that there are no other ways to instantiate this class, `copy` & `move` initializers and constructors are explicitely deleted. There is only one single **private** constructor, accessible internally to initialize the singleton's vairable.
+
+The Game logger is intended to run as a separate thread and provides several public functions for submitting game event. Following are currently supported events:
+- change of direction
+- Eating event
+- Death Event
+
+All these events are stored inside a `GameLogger` vector of events and protected by a `mutex` for concurrent access.
+
+The `GameLogger` object is initialized with parameters indicating the log file location and the frequency at which to update the file. These parameters are currently hardcoded to write to `./game_logger.txt` every 3 seconds (see `GameLogger::getLogger()`)
+
+The thread started by Game::Run() will invoke the `GameLogger::main()` function which will run an infinite while loop, checking whether it is time to flush the `event` vector or not and sleeping for a constant time otherwise (currently 20ms). In addition, a reference to the `Game::running` flag is provided by the `Game` object when launching the thread, and indicates whether the game has ended and the program is shutting down. In addition, a `stopped` flag on `GameLogger` is also used as a separate mechanism to end the logger thread loop when the snake dies, but without ending the program.
+
+The method `GameLogger::flush()` implements the mechanism for writing all stored events into the log file. The method always appends to the end of the file, never clearing it (using the open mode `std::ios_base::app`). In order to minimize the time the mutex locks on the `event` variable, the vector is first moved to a temporary location and the `events` variable cleared before the lock is released, after which the function proceeds to write events to the filesystem. During that time, new events can continue populating a the internal `events` vector. finally, the logger destructor will flush any remaining events to the file to ensure nothing is lost.
+
+Future Improvement to the current implementation includes:
+- Using a separate task to flush the content of the file, avoiding holding the thread for too long.
+- Defining different classes for the `event` types, and using a `std::variant` to store them in the `event` structure. 
+- Extend the Game so as to have a `replay` mode which using the Game logger file to replay the game as it was played. 
+
 
 ## Installing and Running 
+ 
+### Dependencies for Running Locally
+* cmake >= 3.7
+  * All OSes: [click here for installation instructions](https://cmake.org/install/)
+* make >= 4.1 (Linux, Mac), 3.81 (Windows)
+  * Linux: make is installed by default on most Linux distros
+  * Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
+  * Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
+* SDL2 >= 2.0
+  * All installation instructions can be found [here](https://wiki.libsdl.org/Installation)
+  >Note that for Linux, an `apt` or `apt-get` installation is preferred to building from source. 
+* gcc/g++ >= 5.4
+  * Linux: gcc / g++ is installed by default on most Linux distros
+  * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
+  * Windows: recommend using [MinGW](http://www.mingw.org/)
+
+### Steps
 
 1. Clone this repo.
 2. Make a build directory in the top level directory: `mkdir build && cd build`
 3. Compile: `cmake .. && make`
 4. Run it with default game configuration `./SnakeGame`.
-5  Run with Custom Config: `./SnakeGame ../src/config/example_config.json`.
+5. Run with Custom Config: `./SnakeGame ../src/config/example_config.json`.
 
-Output will show configuration used and steps Game event logs
+Output will show the game configuration used and log Game events, for example:
 
 ```
+% ./SnakeGame ../src/config/example_config.json 
 ::GameConfig - Reading Config File: ../src/config/example_config.json
 ::GameConfig - Success reading config file!
 == ::GameConfig == 
@@ -99,7 +118,7 @@ kGridHeight: 24
 ::Logger - update Log - last update 3 sec ago
 ```
 
-The game logs will also be stores in the `./game_logger.txt` file. This file can be observed while playing using
+The game logs will be stored in the `./game_logger.txt` file. This file can be observed while playing using
 `tail -f ./game_logger.txt`
 
 
@@ -130,8 +149,7 @@ YES - see both reading json.config and logger#flush
 
 In addition to controlling the snake, the game can also receive new types of input from the player.
 
-NOT RIGHT NOW
-
+YES see main()
 ### 4. The project uses data structures and immutable variables.
 
 The project uses arrays or vectors and uses constant variables.
