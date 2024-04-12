@@ -1,8 +1,8 @@
 #include "game.h"
 #include <iostream>
 #include "SDL.h"
-
-#include "logger.h"
+#include <algorithm>
+#include "gameLogger.h"
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake(grid_width, grid_height),
@@ -28,7 +28,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   int frame_count = 0;
   Game::running = true;
 
-  threads.emplace_back(std::thread(&Logger::main, std::ref(Logger::getLogger()), std::ref(Game::running)));
+  threads.emplace_back(std::thread(&GameLogger::main, std::ref(GameLogger::getLogger()), std::ref(Game::running)));
 
   while (Game::running) {
     frame_start = SDL_GetTicks();
@@ -92,7 +92,7 @@ void Game::Update() {
     snake.GrowBody();
     snake.speed += 0.02;
 
-    Logger::getLogger().logEatEvent(score, snake.size, snake.speed);
+    GameLogger::getLogger().logEatEvent(score, snake.size, snake.speed);
 
   }
 }

@@ -1,7 +1,7 @@
 #include "snake.h"
 #include <cmath>
 #include <iostream>
-#include "logger.h"
+#include "gameLogger.h"
 
 void Snake::Update() {
   SDL_Point prev_cell{
@@ -60,7 +60,7 @@ void Snake::UpdateBody(SDL_Point &current_head_cell, SDL_Point &prev_head_cell) 
   for (auto const &item : body) {
     if (current_head_cell.x == item.x && current_head_cell.y == item.y) {
       alive = false;
-      Logger::getLogger().logDead();
+      GameLogger::getLogger().logDead();
 
     }
   }
