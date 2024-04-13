@@ -4,35 +4,34 @@ This is the repo for Cherif Jazra's Capstone project in the [Udacity C++ Nanodeg
 
 <img src="snake_game.gif"/>
 
-## CC Attribution-ShareAlike 4.0 International
-
-Shield: [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
-
-This work is licensed under a
-[Creative Commons Attribution-ShareAlike 4.0 International License][cc-by-sa].
-
-[![CC BY-SA 4.0][cc-by-sa-image]][cc-by-sa]
-
-[cc-by-sa]: http://creativecommons.org/licenses/by-sa/4.0/
-[cc-by-sa-image]: https://licensebuttons.net/l/by-sa/4.0/88x31.png
-[cc-by-sa-shield]: https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg
-
-
 # New Features
 
 This project adds the following features to the basic code provided by Udacity:
 
 1. The ability to provide custom game configuration options through a json file, where frame speed, screen size, and grid size can be specified.
-2. A new background Game logger capability which keeps tracks of all games events and periodically stores them in a log file.
+2. A new background Game logger capability which keeps tracks of all game events and periodically stores them in a log file.
 
 
 ## General Description and Code Layout
 
 ### Custom Game Configuration
 
-To support Custom Game configuration through json files, the [RapidJson](https://rapidjson.org/) library is added to the project. RapidJson header files are included under `include/rapidjson` and a new `cmake` file is added for building an linking the project. See `cmake/rapidjson.cmake` for details.
+To support custom game configuration through a json file, the [RapidJson](https://rapidjson.org/) library is added to the project. Only `RapidJson` headers are included under `include/rapidjson` and a new `cmake` file is added for building an linking this dependency. See `cmake/rapidjson.cmake` for details.
 
-The `main` function in `main.cpp` takes a new user input, the url to the json configuration file. The `GameConfig` object defined in `gameConfig.h` implements loading the configuration from a json file. Its constructor will take care of reading the file and store the game parameters in internal private variables such as `_kFramesPerSecond`. Public Getter functions are added for each parameter. The `RAII` pattern is used to manage the file pointer used to open the configuration file. See class `gameConfig.cpp#configFileFp`. If no file is provided by the user, or if the url provided is incorrect, the program will default to the constant game parameters defined in `GameConfig.h`. An example config file can be found in `src/config/example_config.json`
+The `main` function in `main.cpp` takes the url to the json configuration file as input. A `GameConfig` object loads the provided json file and parses the input (see definition in `gameConfig.h`). Its constructor will take care of reading the file and store the game parameters in internal private variables such as `_kFramesPerSecond`. 
+
+See example of config file:
+```
+{
+    "fps": 80,
+    "screenWidth": 320,
+    "screenHeight": 320,
+    "gridWidth": 24,
+    "gridHeight":24
+}
+```
+
+Public Getter functions are added for each parameter. The `RAII` pattern is used to manage the file pointer used to open the configuration file. See class `gameConfig.cpp#configFileFp`. If no file is provided by the user, or if the url provided is incorrect, the program will default to the constant game parameters defined in `GameConfig.h`. An example config file can be found in `src/config/example_config.json`
 
 ### The Game Logger
 
@@ -58,6 +57,23 @@ Future Improvement to the current implementation includes:
 - Defining different classes for the `event` types, and using a `std::variant` to store them in the `event` structure. 
 - Extend the Game so as to have a `replay` mode which using the Game logger file to replay the game as it was played. 
 
+### Code Layount
+
+```
+- cmake/
+  rapidjson.cmake <-- instruction on checking from github and building
+- include/
+    - rapidjson <-- the rapidjson headers
+- src/      
+    - ...
+    - gameConfig.cpp  <--  implements json config parsing and loading
+    - gameConfig.h
+    - gameLogger.cpp  <--  implements Game Logger logic
+    - gameLogger.h
+    - config/
+      - example_config.json  <-- example game config file
+- CmakeLists.txt <-- updates to include -pthread flag and new files
+```
 
 ## Installing and Running 
  
@@ -81,10 +97,10 @@ Future Improvement to the current implementation includes:
 1. Clone this repo.
 2. Make a build directory in the top level directory: `mkdir build && cd build`
 3. Compile: `cmake .. && make`
-4. Run it with default game configuration `./SnakeGame`.
-5. Run with Custom Config: `./SnakeGame ../src/config/example_config.json`.
+4. Run with default game configuration `./SnakeGame`.
+5. Run with Custom Config file: `./SnakeGame ../src/config/example_config.json`.
 
-Output will show the game configuration used and log Game events, for example:
+Output will show the game configuration used and log game events, for example:
 
 ```
 % ./SnakeGame ../src/config/example_config.json 
@@ -128,36 +144,51 @@ The game logs will be stored in the `./game_logger.txt` file. This file can be o
 | Rubric  | Description | Project Meets ? |
 | :-------- | :---------| :-------------: |
 |||
-| I. |  <u>**Compiling and Testing (All Rubric Points REQUIRED)**</u> | |
+| I. |  <u>**Compiling and Testing (All Rubric Points REQUIRED)**</u> | Meets 1/1 rubrics |
 | 1. |  The submission must compile and run without errors on the Udacity project workspace. | Yes | 
 |||
-| II. | <u>**Loops, Functions, I/O - meet at least 2 criteria** </u>| |
+| II. | <u>**Loops, Functions, I/O - meet at least 2 criteria** </u>| Meets 4/4 rubrics |
 | 1. |  The project demonstrates an understanding of C++ functions and control structures. | YES, see the various classes and structure in `.cpp|.h` files for `gameConfig` and `gameLogger` |
 | 2. |  The project reads data from a file and process the data, or the program writes data to a file. | YES - see both reading json.config and logger#flush |
 | 3. |  The project accepts user input and processes the input | YES see `main()` method |
 | 4. |  The project uses data structures and immutable variables. | YES, see constant in logger/GameConfig | 
 |||
-| III.  | <u>**Object Oriented Programming - meet at least 3 criteria**</u>  | |
+| III.  | <u>**Object Oriented Programming - meet at least 3 criteria**</u>  | Meets 3/6 rubrics |
 |||
 | 1. |  One or more classes are added to the project with appropriate access specifiers for class members | YES see `gameLogger.h` |
 | 2. |  Class constructors utilize member initialization lists | YES see `gameLogger.h` |
-| 3. |  Classes abstract implementation details from their interfaces | yes, `gameLogger.h` implementation in `cpp` file |
+| 3. |  Classes abstract implementation details from their interfaces | YES, `gameLogger.h` implementation in `cpp` file |
 | 4. |  Overloaded functions allow the same function to operate on different parameters | NOT RIGHT NOW | 
 | 5. |  Classes follow an appropriate inheritance hierarchy with virtual and override functions | NOT RIGHT NOW | 
 | 6. |  Templates generalize functions or classes in the project. | NOT RIGHT NOW | 
 |||
-| IV. |  <u>**Memory Management - meet at least 3 criteria**</u>  | |  
+| IV. |  <u>**Memory Management - meet at least 3 criteria**</u>  | Meets 5/6 rubrics |  
 |||
 | 1.  | The project makes use of references in function declarations | YES SEE `void main(bool &running);` and `static GameLogger& getLogger();` in  `gameLogger.h` | 
 | 2. |  The project uses destructors appropriately. | YES see `~GameLogger()` |
 | 3. |  The project uses scope / Resource Acquisition Is Initialization (RAII) where appropriate. | YES see class `configFileFp` in `gameConfig.cpp` |
-| 4. |  The project follows the Rule of 5 | yes, see `gameLogger.h` |
+| 4. |  The project follows the Rule of 5 | YES, see `gameLogger.h` |
 | 5. |  The project uses move semantics to move data instead of copying it, where possible |  YES, see example in `GameLogger::logDirectionChange()` |
 | 6. |  The project uses smart pointers instead of raw pointers. | NOT RIGHT NOW |
 |||
-| V. |  <u>**Concurrency - meet at least 2 criteria**</u>  | | 
+| V. |  <u>**Concurrency - meet at least 2 criteria**</u>  | Meets 2/4 rubrics | 
 |||
 | 1. |  The project uses multithreading. | YES, `GameLogger` is running in separate thread and uses mutexes |
 | 2. |  A promise and future is used in the project. | NOT RIGHT NOW |
 | 3. |  A mutex or lock is used in the project  | YES see `GameLogger` use of `_mtx` | 
 | 4. |  A condition variable is used in the project. | NOT RIGHT NOW |
+
+
+# CC Attribution-ShareAlike 4.0 International
+
+Shield: [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
+
+This work is licensed under a
+[Creative Commons Attribution-ShareAlike 4.0 International License][cc-by-sa].
+
+[![CC BY-SA 4.0][cc-by-sa-image]][cc-by-sa]
+
+[cc-by-sa]: http://creativecommons.org/licenses/by-sa/4.0/
+[cc-by-sa-image]: https://licensebuttons.net/l/by-sa/4.0/88x31.png
+[cc-by-sa-shield]: https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg
+
