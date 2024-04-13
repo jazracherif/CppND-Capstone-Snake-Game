@@ -55,6 +55,7 @@ Future Improvement to the current implementation includes:
 - Using a separate task to flush the content of the file, avoiding holding the thread for too long.
 - Defining different classes for the `event` types, and using a `std::variant` to store them in the `event` structure. 
 - Extend the Game so as to have a `replay` mode which using the Game logger file to replay the game as it was played. 
+- Add tests!
 
 ## Code Layout
 
