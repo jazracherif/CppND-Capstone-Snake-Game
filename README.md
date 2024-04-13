@@ -143,38 +143,44 @@ The game logs will be stored in the `./game_logger.txt` file. This file can be o
 | Rubric  | Description | Project Meets ? |
 | :-------- | :---------| :-------------: |
 |||
-| I. |  <u>**Compiling and Testing (All Rubric Points REQUIRED)**</u> | Meets 1/1 rubrics |
-| 1. |  The submission must compile and run without errors on the Udacity project workspace. | Yes | 
+| I | <u>**README (All Rubric Points REQUIRED)**</u> | Meets 3/3 Rubrics | 
 |||
-| II. | <u>**Loops, Functions, I/O - meet at least 2 criteria** </u>| Meets 4/4 rubrics |
-| 1. |  The project demonstrates an understanding of C++ functions and control structures. | YES, see the various classes and structure in `.cpp|.h` files for `gameConfig` and `gameLogger` |
-| 2. |  The project reads data from a file and process the data, or the program writes data to a file. | YES - see both reading json.config and logger#flush |
-| 3. |  The project accepts user input and processes the input | YES see `main()` method |
+| 1. | A README with instructions is included with the project | YES, see this `README.md` |
+| 2 | The README indicates the new features you added to the game | YES, this `README.md` |
+| 3 | The README includes information about each rubric point addressed | YES, this section |
+|||
+| II. |  <u>**Compiling and Testing (All Rubric Points REQUIRED)**</u> | Meets 1/1 Rubrics |
+| 1. |  The submission must compile and run without errors on the Udacity project workspace. | YES, tested on workspace | 
+|||
+| III. | <u>**Loops, Functions, I/O - meet at least 2 criteria** </u>| Meets 4/4 Rubrics |
+| 1. |  The project demonstrates an understanding of C++ functions and control structures. | YES, see the various classes and structure in `.cpp .h` files for `gameConfig` and `gameLogger` |
+| 2. |  The project reads data from a file and process the data, or the program writes data to a file. | YES, see `GameConfig::GameConfig()` and `GameLogger#flus())` |
+| 3. |  The project accepts user input and processes the input | YES, see `main()` method |
 | 4. |  The project uses data structures and immutable variables. | YES, see constant in logger/GameConfig | 
 |||
-| III.  | <u>**Object Oriented Programming - meet at least 3 criteria**</u>  | Meets 3/6 rubrics |
+| IV.  | <u>**Object Oriented Programming - meet at least 3 criteria**</u>  | Meets 3/6 Rubrics |
 |||
-| 1. |  One or more classes are added to the project with appropriate access specifiers for class members | YES see `gameLogger.h` |
-| 2. |  Class constructors utilize member initialization lists | YES see `gameLogger.h` |
+| 1. |  One or more classes are added to the project with appropriate access specifiers for class members | YES, see `gameLogger.h` |
+| 2. |  Class constructors utilize member initialization lists | YES, see `gameLogger.h` |
 | 3. |  Classes abstract implementation details from their interfaces | YES, `gameLogger.h` implementation in `cpp` file |
 | 4. |  Overloaded functions allow the same function to operate on different parameters | NOT RIGHT NOW | 
 | 5. |  Classes follow an appropriate inheritance hierarchy with virtual and override functions | NOT RIGHT NOW | 
 | 6. |  Templates generalize functions or classes in the project. | NOT RIGHT NOW | 
 |||
-| IV. |  <u>**Memory Management - meet at least 3 criteria**</u>  | Meets 5/6 rubrics |  
+| V. |  <u>**Memory Management - meet at least 3 criteria**</u>  | Meets 5/6 Rubrics |  
 |||
-| 1.  | The project makes use of references in function declarations | YES SEE `void main(bool &running);` and `static GameLogger& getLogger();` in  `gameLogger.h` | 
-| 2. |  The project uses destructors appropriately. | YES see `~GameLogger()` |
-| 3. |  The project uses scope / Resource Acquisition Is Initialization (RAII) where appropriate. | YES see class `configFileFp` in `gameConfig.cpp` |
+| 1.  | The project makes use of references in function declarations | YES, see `void main(bool &running);` and `static GameLogger& getLogger();` in  `gameLogger.h` | 
+| 2. |  The project uses destructors appropriately. | YES, see `~GameLogger()` |
+| 3. |  The project uses scope / Resource Acquisition Is Initialization (RAII) where appropriate. | YES, see class `configFileFp` in `gameConfig.cpp` |
 | 4. |  The project follows the Rule of 5 | YES, see `gameLogger.h` |
 | 5. |  The project uses move semantics to move data instead of copying it, where possible |  YES, see example in `GameLogger::logDirectionChange()` |
 | 6. |  The project uses smart pointers instead of raw pointers. | NOT RIGHT NOW |
 |||
-| V. |  <u>**Concurrency - meet at least 2 criteria**</u>  | Meets 2/4 rubrics | 
+| VI. |  <u>**Concurrency - meet at least 2 criteria**</u>  | Meets 2/4 Rubrics | 
 |||
 | 1. |  The project uses multithreading. | YES, `GameLogger` is running in separate thread and uses mutexes |
 | 2. |  A promise and future is used in the project. | NOT RIGHT NOW |
-| 3. |  A mutex or lock is used in the project  | YES see `GameLogger` use of `_mtx` | 
+| 3. |  A mutex or lock is used in the project  | YES, see `GameLogger` use of `_mtx` | 
 | 4. |  A condition variable is used in the project. | NOT RIGHT NOW |
 
 
