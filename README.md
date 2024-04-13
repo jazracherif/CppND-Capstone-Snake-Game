@@ -4,7 +4,8 @@ This is the repo for Cherif Jazra's Capstone project in the [Udacity C++ Nanodeg
 
 <img src="snake_game.gif"/>
 
-# New Features
+
+# Project Description
 
 This project adds the following features to the basic code provided by Udacity:
 
@@ -12,9 +13,7 @@ This project adds the following features to the basic code provided by Udacity:
 2. A new background Game logger capability which keeps tracks of all game events and periodically stores them in a log file.
 
 
-## General Description and Code Layout
-
-### Custom Game Configuration
+## Custom Game Configuration
 
 To support custom game configuration through a json file, the [RapidJson](https://rapidjson.org/) library is added to the project. Only `RapidJson` headers are included under `include/rapidjson` and a new `cmake` file is added for building an linking this dependency. See `cmake/rapidjson.cmake` for details.
 
@@ -33,7 +32,7 @@ See example of config file:
 
 Public Getter functions are added for each parameter. The `RAII` pattern is used to manage the file pointer used to open the configuration file. See class `gameConfig.cpp#configFileFp`. If no file is provided by the user, or if the url provided is incorrect, the program will default to the constant game parameters defined in `GameConfig.h`. An example config file can be found in `src/config/example_config.json`
 
-### The Game Logger
+## Game Logger
 
 The second and main feature added to this program is a Game Logging capability. The logger is implemented using the [Singleton pattern](https://en.wikipedia.org/wiki/Singleton_pattern), in the `GameLogger` class in `gameLogger.h`.  This pattern is used to make it easier to invoke the logger from anywhere within the codebase, without having to include a reference to the logger in all classes that need to access it.
 
@@ -57,27 +56,27 @@ Future Improvement to the current implementation includes:
 - Defining different classes for the `event` types, and using a `std::variant` to store them in the `event` structure. 
 - Extend the Game so as to have a `replay` mode which using the Game logger file to replay the game as it was played. 
 
-### Code Layount
+## Code Layout
 
 ```
 - cmake/
-  rapidjson.cmake <-- instruction on checking from github and building
+  rapidjson.cmake <-- NEW: instructions on checking from github and building
 - include/
-    - rapidjson <-- the rapidjson headers
+    - rapidjson/  <-- NEW; the rapidjson header files
+      - ...
 - src/      
     - ...
-    - gameConfig.cpp  <--  implements json config parsing and loading
-    - gameConfig.h
-    - gameLogger.cpp  <--  implements Game Logger logic
-    - gameLogger.h
+    - gameConfig.cpp  <--  NEW: implements json config parsing and loading
+    - gameConfig.h    <--  NEW: gameConfig class definition
+    - gameLogger.cpp  <--  NEW: implements Game Logger logic
+    - gameLogger.h    <--  NEW: gameLogger class definition
     - config/
-      - example_config.json  <-- example game config file
-- CmakeLists.txt <-- updates to include -pthread flag and new files
+      - example_config.json  <-- NEW: example game config file
+- CmakeLists.txt <-- UPDATED: includes -pthread flag and new files
+- ..
 ```
-
-## Installing and Running 
  
-### Dependencies for Running Locally
+# Dependencies for Running Locally
 * cmake >= 3.7
   * All OSes: [click here for installation instructions](https://cmake.org/install/)
 * make >= 4.1 (Linux, Mac), 3.81 (Windows)
@@ -92,7 +91,7 @@ Future Improvement to the current implementation includes:
   * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
   * Windows: recommend using [MinGW](http://www.mingw.org/)
 
-### Steps
+# Install & Run
 
 1. Clone this repo.
 2. Make a build directory in the top level directory: `mkdir build && cd build`
