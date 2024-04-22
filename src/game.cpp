@@ -9,7 +9,9 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)) {
-  PlaceFood();
+
+  PlaceFood(false);
+  PlaceFood(true);
 }
 
 Game::~Game(){
@@ -36,7 +38,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // Input, Update, Render - the main game loop.
     controller.HandleInput(Game::running, snake);
     Update();
-    renderer.Render(snake, food);
+    renderer.Render(snake, foods);
 
     frame_end = SDL_GetTicks();
 
@@ -61,16 +63,30 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   }
 }
 
-void Game::PlaceFood() {
+bool Game::foodAt(int x, int y){
+    for(auto &food: foods){
+      if (food->point.x == x && food->point.y == y)
+        return true;
+    }
+    return false;
+}
+
+
+void Game::PlaceFood(bool enemy) {
   int x, y;
   while (true) {
     x = random_w(engine);
     y = random_h(engine);
-    // Check that the location is not occupied by a snake item before placing
+    // Check that the location is not occupied by a snake or food item before placing
     // food.
-    if (!snake.SnakeCell(x, y)) {
-      food.x = x;
-      food.y = y;
+    if (!snake.SnakeCell(x, y) && !Game::foodAt(x, y)) {
+      std::unique_ptr<FoodBase> food;
+      if (enemy == false) food = std::make_unique<FriendFood>();
+      else food = std::make_unique<EnemyFood>();
+
+      food->point.x = x;
+      food->point.y = y;
+      foods.push_back(std::move(food));
       return;
     }
   }
@@ -85,16 +101,36 @@ void Game::Update() {
   int new_y = static_cast<int>(snake.head_y);
 
   // Check if there's food over here
-  if (food.x == new_x && food.y == new_y) {
-    score++;
-    PlaceFood();
-    // Grow snake and increase speed.
-    snake.GrowBody();
-    snake.speed += 0.02;
+  // std::cout << "food size " << foods.size() << std::endl;
 
-    GameLogger::getLogger().logEatEvent(score, snake.size, snake.speed);
+  bool placeFood = false;
+  for (std::vector<std::unique_ptr<FoodBase>>::iterator it = foods.begin(); it != foods.end();) { 
 
-  }
+    if ((*it)->point.x == new_x && (*it)->point.y == new_y) {
+      std::cout << "::game - Got Food!" << std::endl;
+      if (!(*it)->isFriend()){
+        std::cout << "::game - enemy food" << std::endl;
+      }
+
+      score++;
+      // Remove this food item from the list. it has been eaten
+      it = foods.erase(it);
+
+      // Grow snake and increase speed.
+      snake.GrowBody();
+      snake.speed += 0.02;
+
+      GameLogger::getLogger().logEatEvent(score, snake.size, snake.speed);
+
+      // There can only be one food item in one place
+      PlaceFood(false);
+      break;
+    }
+    else {
+      ++it;
+    }
+  };
+
 }
 
 int Game::GetScore() const { return score; }

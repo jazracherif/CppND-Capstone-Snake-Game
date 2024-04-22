@@ -6,6 +6,8 @@
 #include "controller.h"
 #include "renderer.h"
 #include "snake.h"
+#include "food.h"
+
 #include <thread>
 #include <vector>
 
@@ -21,8 +23,7 @@ class Game {
 
  private:
   Snake snake;
-  SDL_Point food;
-
+  std::vector<std::unique_ptr<FoodBase>> foods;
   std::random_device dev;
   std::mt19937 engine;
   std::uniform_int_distribution<int> random_w;
@@ -30,7 +31,9 @@ class Game {
 
   int score{0};
 
-  void PlaceFood();
+  void PlaceFood(bool enemy);
+  bool foodAt(int x, int y); // Whether there is food at this location
+
   void Update();
 
   std::vector<std::thread> threads;
