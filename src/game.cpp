@@ -84,8 +84,10 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // Input, Update, Render - the main game loop.
     controller.HandleInput(Game::running, snake);
     Update();
+    std::unique_lock<std::recursive_mutex> lck(Game::_foods_mtx);
     renderer.Render(snake, foods);
-
+    lck.unlock();
+    
     frame_end = SDL_GetTicks();
 
     // Keep track of how long each loop through the input/update/render cycle
