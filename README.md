@@ -3,9 +3,11 @@
 This is the repo for Cherif Jazra's Capstone project in the [Udacity C++ Nanodegree Program](https://www.udacity.com/course/c-plus-plus-nanodegree--nd213). The code for this repo was originally provided by Udacity and inspired by [this](https://codereview.stackexchange.com/questions/212296/snake-game-in-c-with-sdl) excellent StackOverflow post and set of responses.
 
 **Original**
+
 <img src="snake_game.gif"/>
 
 **Updated**
+
 <img src="snake_updated.gif"/>
 
 # Project Description
