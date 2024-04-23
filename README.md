@@ -2,8 +2,11 @@
 
 This is the repo for Cherif Jazra's Capstone project in the [Udacity C++ Nanodegree Program](https://www.udacity.com/course/c-plus-plus-nanodegree--nd213). The code for this repo was originally provided by Udacity and inspired by [this](https://codereview.stackexchange.com/questions/212296/snake-game-in-c-with-sdl) excellent StackOverflow post and set of responses.
 
+**Original**
 <img src="snake_game.gif"/>
 
+**Updated**
+<img src="snake_updated.gif"/>
 
 # Project Description
 
@@ -11,9 +14,9 @@ This project adds the following features to the basic code provided by Udacity:
 
 1. The ability to provide custom game configuration options through a json file, where frame speed, screen size, and grid size can be specified.
 2. A new background Game logger capability which keeps tracks of all game events and periodically stores them in a log file.
+3. More than 1 food item appears and disappears on the screen, and can now be good (green) or bad (black). Eating black food ends the game 
 
-
-## Custom Game Configuration
+## 1. Custom Game Configuration
 
 To support custom game configuration through a json file, the [RapidJson](https://rapidjson.org/) library is added to the project. Only `RapidJson` headers are included under `include/rapidjson` and a new `cmake` file is added for building an linking this dependency. See `cmake/rapidjson.cmake` for details.
 
@@ -32,7 +35,7 @@ See example of config file:
 
 Public Getter functions are added for each parameter. The `RAII` pattern is used to manage the file pointer used to open the configuration file. See class `gameConfig.cpp#configFileFp`. If no file is provided by the user, or if the url provided is incorrect, the program will default to the constant game parameters defined in `GameConfig.h`. An example config file can be found in `src/config/example_config.json`
 
-## Game Logger
+## 2. Game Logger
 
 The second and main feature added to this program is a Game Logging capability. The logger is implemented using the [Singleton pattern](https://en.wikipedia.org/wiki/Singleton_pattern), in the `GameLogger` class in `gameLogger.h`.  This pattern is used to make it easier to invoke the logger from anywhere within the codebase, without having to include a reference to the logger in all classes that need to access it.
 
@@ -57,6 +60,17 @@ Future Improvement to the current implementation includes:
 - Extend the Game so as to have a `replay` mode which using the Game logger file to replay the game as it was played. 
 - Add tests!
 
+## 3. Food Diversity
+
+First, we provide a small hierarchy of Food types, defined in `food.h`, with an abstract interface class `FoodBase` and 2 subtypes, `FriendFood` and `EnemyFood`. These class overwirte the getColor() function defined in the parent to indicate color difference. Eeach item contains a timestamp indicating when it was created and a random value indicating when it will expire and should be deleted.
+
+The `Game` object now contains a vector of unique pointers of `FoodBase` item, which gets update at different place:
+- One thread will create new items at different random interface and of different time
+- One thread will check whether any of the food item has expired or not
+- A Food item is deleted once the snake eats it
+
+The vector is also protected by a recurrent mutex `_foods_mtx` to ensure protected access from different threads.
+
 ## Code Layout
 
 ```
@@ -71,6 +85,8 @@ Future Improvement to the current implementation includes:
     - gameConfig.h    <--  NEW: gameConfig class definition
     - gameLogger.cpp  <--  NEW: implements Game Logger logic
     - gameLogger.h    <--  NEW: gameLogger class definition
+    - food.h          <--  NEW: food item definition
+    - food.cpp        <--  NEW: food item implementation
     - config/
       - example_config.json  <-- NEW: example game config file
 - CmakeLists.txt <-- UPDATED: includes -pthread flag and new files
@@ -165,7 +181,7 @@ The game logs will be stored in the `./game_logger.txt` file. This file can be o
 | 2. |  Class constructors utilize member initialization lists | YES, see `gameLogger.h` |
 | 3. |  Classes abstract implementation details from their interfaces | YES, `gameLogger.h` implementation in `cpp` file |
 | 4. |  Overloaded functions allow the same function to operate on different parameters | NOT RIGHT NOW | 
-| 5. |  Classes follow an appropriate inheritance hierarchy with virtual and override functions | NOT RIGHT NOW | 
+| 5. |  Classes follow an appropriate inheritance hierarchy with virtual and override functions | Yes see `FoodBase` and subtypes | 
 | 6. |  Templates generalize functions or classes in the project. | NOT RIGHT NOW | 
 |||
 | V. |  <u>**Memory Management - meet at least 3 criteria**</u>  | Meets 5/6 Rubrics |  
@@ -179,7 +195,7 @@ The game logs will be stored in the `./game_logger.txt` file. This file can be o
 |||
 | VI. |  <u>**Concurrency - meet at least 2 criteria**</u>  | Meets 2/4 Rubrics | 
 |||
-| 1. |  The project uses multithreading. | YES, `GameLogger` is running in separate thread and uses mutexes |
+| 1. |  The project uses multithreading. | YES, `GameLogger` is running in separate thread and uses mutexes, also 2 additional threads running `Game::FoodCheck` and `Game::FoodCreate` |
 | 2. |  A promise and future is used in the project. | NOT RIGHT NOW |
 | 3. |  A mutex or lock is used in the project  | YES, see `GameLogger` use of `_mtx` | 
 | 4. |  A condition variable is used in the project. | NOT RIGHT NOW |

@@ -47,21 +47,20 @@ void Game::FoodCheck() {
 void Game::FoodCreate() {
     std::random_device r;
     std::default_random_engine e1(r());
-    std::uniform_int_distribution<int> uniform_dist(1, 5);
-    int sleepFor = uniform_dist(e1);
+    std::uniform_int_distribution<int> uniform_dist(100, 500);
+    int sleepForMs = uniform_dist(e1);
     std::chrono::time_point<std::chrono::system_clock> last = std::chrono::system_clock::now();
 
     while (Game::isRunning()){
-      long timeSinceLastCreation = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - last).count();
-      if (timeSinceLastCreation >= sleepFor ){
+      long timeSinceLastCreation = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - last).count();
+      if (timeSinceLastCreation >= sleepForMs){
         // Create some food
-        for (int i = 0; i < 10 ; i++){
-          PlaceFood(i % 2);
-        }
-        sleepFor = uniform_dist(e1);
+        PlaceFood(sleepForMs % 2);
+        
+        sleepForMs = uniform_dist(e1);
         last = std::chrono::system_clock::now();
       }
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 
@@ -172,7 +171,6 @@ void Game::Update() {
       GameLogger::getLogger().logEatEvent(score, snake.size, snake.speed);
 
       // There can only be one food item in one place
-      PlaceFood(false);
       break;
     }
     else {
