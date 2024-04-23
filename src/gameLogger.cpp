@@ -3,7 +3,7 @@
 #include <fstream>
 #include "gameLogger.h"
 #include <algorithm>
-
+#include "util.h"
 
 std::mutex GameLogger::_mtx;
 
@@ -18,12 +18,6 @@ std::string directionToStr(const Snake::Direction direction){
     }
 }
 
-std::string timeToStr(std::chrono::time_point<std::chrono::system_clock> time){
-    std::time_t t = std::chrono::system_clock::to_time_t(time);
-    std::string t2 = std::string(std::ctime(&t));
-    t2.pop_back();
-    return t2;
-}
 
 GameLogger &GameLogger::getLogger(){
     // should i use std::call_once?
@@ -81,7 +75,7 @@ void GameLogger::logDirectionChange(const Snake::Direction direction){
         return;
 
     std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-    std::string log = "--" + timeToStr(now)+ "\t-- GO: " + directionToStr(direction) + " --";
+    std::string log = "--" + Util::timeToStr(now)+ "\t-- GO: " + directionToStr(direction) + " --";
 
     std::lock_guard<std::mutex> lck(GameLogger::_mtx);
     events.push_back(std::move(log));
@@ -91,7 +85,7 @@ void GameLogger::logEatEvent(const int score, const int size, const float speed)
     if (GameLogger::stopped)
         return;
     std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-    std::string log = "--" + timeToStr(now)+ "\t-- YUMMY! " + " score: " +\
+    std::string log = "--" + Util::timeToStr(now)+ "\t-- YUMMY! " + " score: " +\
                         std::to_string(score)+ " size: " +\
                         std::to_string(size) + " speed: " +\
                         std::to_string(speed) + " --";
@@ -106,7 +100,7 @@ void GameLogger::logDead(){
         return;
 
     std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-    std::string log = "--" + timeToStr(now)+ "\t-- DEAD --";
+    std::string log = "--" + Util::timeToStr(now)+ "\t-- DEAD --";
 
     std::lock_guard<std::mutex> lck(GameLogger::_mtx);
     events.push_back(std::move(log));

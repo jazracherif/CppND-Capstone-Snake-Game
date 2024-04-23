@@ -3,6 +3,9 @@
 #include "SDL.h"
 #include <algorithm>
 #include "gameLogger.h"
+#include "util.h"
+
+std::recursive_mutex Game::_foods_mtx;
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake(grid_width, grid_height),
@@ -10,8 +13,9 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)) {
 
-  PlaceFood(false);
-  PlaceFood(true);
+  for (int i = 0; i < 10 ; i++){
+    PlaceFood(i % 2);
+  }
 }
 
 Game::~Game(){
@@ -19,6 +23,46 @@ Game::~Game(){
   std::for_each(threads.begin(), threads.end(), [](std::thread &t) {
         t.join();
     });
+}
+
+void Game::FoodCheck() {
+  while (Game::isRunning()){
+    std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+
+    std::unique_lock<std::recursive_mutex> lck(Game::_foods_mtx);
+    for (std::vector<std::unique_ptr<FoodBase>>::iterator it = Game::foods.begin(); it != Game::foods.end();) { 
+
+      long timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::seconds>(now - (*it)->createdTS).count();
+
+      if (timeSinceLastUpdate >= (*it)->validForSeconds)
+        it = Game::foods.erase(it);
+      else
+        ++it;
+    }
+    lck.unlock();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+}
+
+void Game::FoodCreate() {
+    std::random_device r;
+    std::default_random_engine e1(r());
+    std::uniform_int_distribution<int> uniform_dist(1, 5);
+    int sleepFor = uniform_dist(e1);
+    std::chrono::time_point<std::chrono::system_clock> last = std::chrono::system_clock::now();
+
+    while (Game::isRunning()){
+      long timeSinceLastCreation = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - last).count();
+      if (timeSinceLastCreation >= sleepFor ){
+        // Create some food
+        for (int i = 0; i < 10 ; i++){
+          PlaceFood(i % 2);
+        }
+        sleepFor = uniform_dist(e1);
+        last = std::chrono::system_clock::now();
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -31,6 +75,9 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   Game::running = true;
 
   threads.emplace_back(std::thread(&GameLogger::main, std::ref(GameLogger::getLogger()), std::ref(Game::running)));
+
+  threads.emplace_back(std::thread(&Game::FoodCheck, this));
+  threads.emplace_back(std::thread(&Game::FoodCreate, this));
 
   while (Game::running) {
     frame_start = SDL_GetTicks();
@@ -60,10 +107,12 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     if (frame_duration < target_frame_duration) {
       SDL_Delay(target_frame_duration - frame_duration);
     }
+
   }
 }
 
 bool Game::foodAt(int x, int y){
+    std::lock_guard<std::recursive_mutex> lck(Game::_foods_mtx);
     for(auto &food: foods){
       if (food->point.x == x && food->point.y == y)
         return true;
@@ -74,6 +123,8 @@ bool Game::foodAt(int x, int y){
 
 void Game::PlaceFood(bool enemy) {
   int x, y;
+  std::lock_guard<std::recursive_mutex> lck(Game::_foods_mtx);
+
   while (true) {
     x = random_w(engine);
     y = random_h(engine);
@@ -100,22 +151,20 @@ void Game::Update() {
   int new_x = static_cast<int>(snake.head_x);
   int new_y = static_cast<int>(snake.head_y);
 
-  // Check if there's food over here
-  // std::cout << "food size " << foods.size() << std::endl;
-
-  bool placeFood = false;
+  // Check if there is any food at this location
+  std::lock_guard<std::recursive_mutex> lck(Game::_foods_mtx);
   for (std::vector<std::unique_ptr<FoodBase>>::iterator it = foods.begin(); it != foods.end();) { 
-
     if ((*it)->point.x == new_x && (*it)->point.y == new_y) {
       std::cout << "::game - Got Food!" << std::endl;
       if (!(*it)->isFriend()){
         std::cout << "::game - enemy food" << std::endl;
+        snake.alive = false;
+        return;
       }
 
       score++;
       // Remove this food item from the list. it has been eaten
       it = foods.erase(it);
-
       // Grow snake and increase speed.
       snake.GrowBody();
       snake.speed += 0.02;

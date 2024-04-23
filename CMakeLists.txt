@@ -22,7 +22,8 @@ add_executable(SnakeGame src/main.cpp
                          src/renderer.cpp 
                          src/snake.cpp 
                          src/gameLogger.cpp
-                         src/gameConfig.cpp)
+                         src/gameConfig.cpp
+                         src/food.cpp)
 add_dependencies(SnakeGame rapidjson)
 
 string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)

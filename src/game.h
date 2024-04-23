@@ -10,6 +10,7 @@
 
 #include <thread>
 #include <vector>
+#include <mutex>
 
 class Game {
  public:
@@ -20,10 +21,13 @@ class Game {
            std::size_t target_frame_duration);
   int GetScore() const;
   int GetSize() const;
-
+  bool isRunning() { return running;}
+  
  private:
   Snake snake;
   std::vector<std::unique_ptr<FoodBase>> foods;
+  static std::recursive_mutex _foods_mtx; // protect foods structure
+
   std::random_device dev;
   std::mt19937 engine;
   std::uniform_int_distribution<int> random_w;
@@ -35,9 +39,13 @@ class Game {
   bool foodAt(int x, int y); // Whether there is food at this location
 
   void Update();
+  void FoodCheck(); // Check whether food has expired
+  void FoodCreate(); // Ceate food at random times
+
 
   std::vector<std::thread> threads;
   bool running{false}; // whether the game is running
+
 };
 
 #endif

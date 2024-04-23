@@ -2,7 +2,11 @@
 #define FOOD_H
 
 #include "SDL.h"
+#include <chrono>
+#include <thread>
+#include <random>
 
+class Game;
 
 struct FoodColor {
   Uint8 r;
@@ -14,7 +18,18 @@ struct FoodColor {
 
 class FoodBase {
 public:
+  FoodBase(): createdTS(std::chrono::system_clock::now()) {
+    std::random_device r;
+    std::default_random_engine e1(r());
+    std::uniform_int_distribution<int> uniform_dist(5, 10);
+    
+    validForSeconds = uniform_dist(e1);
+  };
+
+public:
   SDL_Point point;
+  std::chrono::time_point<std::chrono::system_clock> createdTS;
+  long validForSeconds;
 
 public:
   virtual FoodColor getColor() const = 0;
@@ -25,24 +40,15 @@ public:
 
 class FriendFood : public FoodBase {
 public:  
-  FoodColor getColor() const {    
-    return FoodColor{0x50, 0xC8, 0x78, 0xFF};
-  }
-  bool isFriend() const {
-    return true;
-  }
+  FoodColor getColor() const;
+  bool isFriend() const;
 
 };
 
 class EnemyFood : public FoodBase {
 public:
-  FoodColor getColor() const {   
-    return FoodColor{0xd2, 0x2b, 0x2b, 0xFF};
-  }
-  bool isFriend() const{
-    return false;
-  }
-
+  FoodColor getColor() const;
+  bool isFriend() const;
 };
 
 #endif
